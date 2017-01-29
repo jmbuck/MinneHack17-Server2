@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -17,7 +18,7 @@ import javafx.embed.swing.JFXPanel;
 
 public class Receiver {
 	public static void main(String[] args) throws InterruptedException {
-		connect();
+		//connect();
 		
 		final CountDownLatch latch = new CountDownLatch(1);
 		SwingUtilities.invokeLater(new Runnable() {
@@ -38,12 +39,13 @@ public class Receiver {
 
 
 				HttpResponse res = client.execute(request);
-				if(res != null) {
+				String response = EntityUtils.toString(res.getEntity(), "UTF-8");
+				if(response.equals("true")) {
 					System.out.println("Playing mp3...");
 					Media speech = new Media(new File("response.mp3").toURI().toString());
 					MediaPlayer mediaPlayer = new MediaPlayer(speech);
 					mediaPlayer.play(); 
-					Thread.sleep(1000);
+					Thread.sleep(2000);
 				}
 				
 			}
@@ -55,7 +57,7 @@ public class Receiver {
 		}
 	}
 	
-	private static void connect() {
+	/*private static void connect() {
 		ClientNetwork network = new ClientNetwork();
 		try
 		{
@@ -69,7 +71,7 @@ public class Receiver {
 		network.update();
 		
 		network.validate(true);
-	}
+	}*/
 	
 	public static void handleMessage(String text) {
 		try {
