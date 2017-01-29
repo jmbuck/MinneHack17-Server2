@@ -19,6 +19,11 @@ public abstract class Packet
 		addPacket(PacketRSA.class);
 		addPacket(PacketAES.class);
 		addPacket(PacketSecure.class);
+		addPacket(PacketTakePill.class);
+		addPacket(PacketQueryPills.class);
+		addPacket(PacketAddPill.class);
+		
+		addPacket(PacketMessage.class);
 	}
 	
 	private short packetHeader = 0;

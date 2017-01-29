@@ -13,7 +13,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.ShortBufferException;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -32,10 +31,13 @@ public abstract class Network
 
 	private boolean isConnected = true;
 
+	private Network network;
+
 	public Network()
 	{
 		packetsToSend = new LinkedBlockingQueue<Packet>();
 		packets = new ConcurrentLinkedQueue<Packet>();
+		network = this;
 	}
 
 	protected void connect(Socket connectionSocket) throws IOException
@@ -74,7 +76,8 @@ public abstract class Network
 						int packet = inputStream.readShort();
 						byte[] data = new byte[inputStream.readInt()];
 						inputStream.readFully(data);
-						packets.offer(Packet.wrap(packet, data));
+						Packet packetWrapped = Packet.wrap(packet, data);
+						packets.offer(packetWrapped);
 					}
 				}
 				catch (IOException | ReflectiveOperationException e) 
@@ -122,13 +125,28 @@ public abstract class Network
 		}.start();
 	}
 
-	public void update(double delta)
+	public void update()
 	{
-		Packet nextPacket = null;
-		while((nextPacket = packets.poll()) != null)
+		new Thread()
 		{
-			nextPacket.handle(this);
-		}
+			public void run()
+			{
+				Packet nextPacket = null;
+				while((nextPacket = packets.poll()) != null)
+				{
+					nextPacket.handle(network);
+				}
+				try
+				{
+					Thread.sleep(20);
+					run();
+				}
+				catch (InterruptedException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 	public void sendPacket(Packet packetToSend)
@@ -183,7 +201,7 @@ public abstract class Network
 			DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packetSecure.getEncoded()));
 			byte[] data = Base64.decodeBase64(inputStream.readUTF());
 			inputStream = new DataInputStream(new ByteArrayInputStream(decrypt.doFinal(data)));
-			
+
 			int packet = inputStream.readShort();
 			data = new byte[inputStream.readInt()];
 			inputStream.readFully(data);
@@ -199,6 +217,7 @@ public abstract class Network
 	public void invalidate() throws IOException 
 	{
 		socket.close();
+		isConnected = false;
 	}
 
 	public boolean isConnected()

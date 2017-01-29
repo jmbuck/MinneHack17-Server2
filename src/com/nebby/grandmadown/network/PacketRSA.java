@@ -46,7 +46,7 @@ public class PacketRSA extends Packet
 	@Override
 	public void handle(Network network) 
 	{
-		
+		((ClientNetwork)network).createAESKey(encoded, aesBitLength);
 	}
 
 }

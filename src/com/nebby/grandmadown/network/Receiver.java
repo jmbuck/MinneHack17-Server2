@@ -1,3 +1,4 @@
+package com.nebby.grandmadown.network;
 import java.io.*;
 
 import javafx.scene.media.Media;
@@ -5,28 +6,42 @@ import javafx.scene.media.MediaPlayer;
 
 public class Receiver {
 	public static void main(String[] args) throws InterruptedException {
+		connect();
 		while(true) {
-			String message = getMessage();
-			if(!message.equals("none")) {
-				String command = "wget "+message+" -O ../response.mp3";
-				executeCommand(command);
-				//possibly sleep to let file download
-				Thread.sleep(1000);
-				Media speech = new Media("response.mp3");
-				MediaPlayer mediaPlayer = new MediaPlayer(speech);
-				mediaPlayer.play();  
-				
-			}
+			
 			Thread.sleep(1000);
 		}
 		
 		
 	}
 	
-	private static String getMessage() {
-		String msg = "";
+	private static void connect() {
+		ClientNetwork network = new ClientNetwork();
+		try
+		{
+			network.connect("ec2-54-172-226-18.compute-1.amazonaws.com", 8888);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		
-		return msg;
+		network.update();
+		
+		network.validate(true);
+	}
+	
+	public static void handleMessage(String text) {
+		try {
+			String command = "wget "+text+" -O ../response.mp3";
+			executeCommand(command);
+			//possibly sleep to let file download
+			Thread.sleep(1000);
+			Media speech = new Media("response.mp3");
+			MediaPlayer mediaPlayer = new MediaPlayer(speech);
+			mediaPlayer.play();  
+		}
+		catch(Exception e) { }	
 	}
 	
 	private static String executeCommand(String command) {

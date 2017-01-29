@@ -68,4 +68,14 @@ public class ClientNetwork extends Network
 		}
 	}
 
+	public void queryPills(Network network, String[] pillNames)
+	{
+		
+	}
+
+	public void handleMessage(String text) {
+		// TODO Auto-generated method stub
+	
+	}
+
 }
