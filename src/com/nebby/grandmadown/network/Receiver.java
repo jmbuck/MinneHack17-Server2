@@ -7,12 +7,6 @@ import javafx.scene.media.MediaPlayer;
 public class Receiver {
 	public static void main(String[] args) throws InterruptedException {
 		connect();
-		while(true) {
-			
-			Thread.sleep(1000);
-		}
-		
-		
 	}
 	
 	private static void connect() {
@@ -40,6 +34,7 @@ public class Receiver {
 			Media speech = new Media("response.mp3");
 			MediaPlayer mediaPlayer = new MediaPlayer(speech);
 			mediaPlayer.play();  
+			Thread.sleep(2000);
 		}
 		catch(Exception e) { }	
 	}
