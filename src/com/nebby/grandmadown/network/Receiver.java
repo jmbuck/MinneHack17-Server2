@@ -5,6 +5,11 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.*;
@@ -22,6 +27,32 @@ public class Receiver {
 		    }
 		});
 		latch.await();
+		
+		while(true) {
+			try
+			{
+				String url = "http://ec2-54-172-226-18.compute-1.amazonaws.com:8888/bluetooth";
+
+				HttpClient client = HttpClientBuilder.create().build();
+				HttpGet request = new HttpGet(url);
+
+
+				HttpResponse res = client.execute(request);
+				if(res != null) {
+					System.out.println("Playing mp3...");
+					Media speech = new Media(new File("response.mp3").toURI().toString());
+					MediaPlayer mediaPlayer = new MediaPlayer(speech);
+					mediaPlayer.play(); 
+					Thread.sleep(1000);
+				}
+				
+			}
+			catch(Exception e)
+			{
+			}
+			
+			Thread.sleep(1000);
+		}
 	}
 	
 	private static void connect() {
