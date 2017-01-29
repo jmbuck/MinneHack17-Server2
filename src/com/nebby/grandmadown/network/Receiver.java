@@ -1,12 +1,27 @@
 package com.nebby.grandmadown.network;
 import java.io.*;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+
+import javax.swing.SwingUtilities;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.*;
+import javafx.embed.swing.JFXPanel; 
 
 public class Receiver {
 	public static void main(String[] args) throws InterruptedException {
 		connect();
+		
+		final CountDownLatch latch = new CountDownLatch(1);
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+		        new JFXPanel(); // initializes JavaFX environment
+		        latch.countDown();
+		    }
+		});
+		latch.await();
 	}
 	
 	private static void connect() {
@@ -27,16 +42,15 @@ public class Receiver {
 	
 	public static void handleMessage(String text) {
 		try {
-			String command = "wget "+text+" -O ../response.mp3";
-			executeCommand(command);
-			//possibly sleep to let file download
-			Thread.sleep(1000);
-			Media speech = new Media("response.mp3");
+			System.out.println("Playing mp3...");
+			Media speech = new Media(new File("response.mp3").toURI().toString());
 			MediaPlayer mediaPlayer = new MediaPlayer(speech);
-			mediaPlayer.play();  
+			mediaPlayer.play(); 
 			Thread.sleep(2000);
 		}
-		catch(Exception e) { }	
+		catch(Exception e) { 
+			System.out.println("Error receiving message");
+		}	
 	}
 	
 	private static String executeCommand(String command) {
